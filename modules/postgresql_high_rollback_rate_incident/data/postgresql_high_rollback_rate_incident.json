@@ -1,0 +1,198 @@
+{
+  "name": "postgresql_high_rollback_rate_incident",
+  "description": "This incident type refers to a situation where the Postgresql database has a high rollback rate, which means that a high percentage of transactions are being aborted compared to the committed ones. This can cause issues with data consistency and performance, and may require investigation and resolution by the responsible team. The incident details may include information about the affected database instance, the service or system impacted, the urgency level, and any related alerts or escalations.",
+  "params": [
+    {
+      "name": "TABLE_NAME",
+      "value": ""
+    },
+    {
+      "name": "DATABASE_PORT",
+      "value": ""
+    },
+    {
+      "name": "DATABASE_USERNAME",
+      "value": ""
+    },
+    {
+      "name": "DATABASE_NAME",
+      "value": ""
+    },
+    {
+      "name": "DATABASE_PASSWORD",
+      "value": ""
+    },
+    {
+      "name": "DATABASE_HOST",
+      "value": ""
+    },
+    {
+      "name": "HOST_NAME",
+      "value": ""
+    }
+  ],
+  "cells": [
+    {
+      "name": "cell_1",
+      "type": "MARKDOWN",
+      "enabled": true,
+      "content": "## Postgresql high rollback rate incident\nThis incident type refers to a situation where the Postgresql database has a high rollback rate, which means that a high percentage of transactions are being aborted compared to the committed ones. This can cause issues with data consistency and performance, and may require investigation and resolution by the responsible team. The incident details may include information about the affected database instance, the service or system impacted, the urgency level, and any related alerts or escalations."
+    },
+    {
+      "name": "cell_2",
+      "type": "MARKDOWN",
+      "enabled": true,
+      "content": "## Check the status of the PostgreSQL service"
+    },
+    {
+      "name": "cell_3",
+      "type": "OP_LANG",
+      "enabled": true,
+      "content": "rq_non_kubectl_oneliner | `systemctl status postgresql`"
+    },
+    {
+      "name": "cell_4",
+      "type": "MARKDOWN",
+      "enabled": true,
+      "content": "## Check the PostgreSQL logs for any errors"
+    },
+    {
+      "name": "cell_5",
+      "type": "OP_LANG",
+      "enabled": true,
+      "content": "rq_non_kubectl_oneliner | `journalctl -u postgresql`"
+    },
+    {
+      "name": "cell_6",
+      "type": "MARKDOWN",
+      "enabled": true,
+      "content": "## Check the PostgreSQL configuration file for any issues"
+    },
+    {
+      "name": "cell_7",
+      "type": "OP_LANG",
+      "enabled": true,
+      "content": "rq_non_kubectl_oneliner | `cat /etc/postgresql/main/postgresql.conf`"
+    },
+    {
+      "name": "cell_8",
+      "type": "MARKDOWN",
+      "enabled": true,
+      "content": "## Check the current connections to PostgreSQL and their status"
+    },
+    {
+      "name": "cell_9",
+      "type": "OP_LANG",
+      "enabled": true,
+      "content": "rq_non_kubectl_oneliner | `psql -U ${DATABASE_USERNAME} -h ${DATABASE_HOST} -c \"SELECT * FROM pg_stat_activity;\"`"
+    },
+    {
+      "name": "cell_10",
+      "type": "MARKDOWN",
+      "enabled": true,
+      "content": "## Check the PostgreSQL version installed"
+    },
+    {
+      "name": "cell_11",
+      "type": "OP_LANG",
+      "enabled": true,
+      "content": "rq_non_kubectl_oneliner | `psql --version`"
+    },
+    {
+      "name": "cell_12",
+      "type": "MARKDOWN",
+      "enabled": true,
+      "content": "## Check the system resources being used by PostgreSQL"
+    },
+    {
+      "name": "cell_13",
+      "type": "OP_LANG",
+      "enabled": true,
+      "content": "rq_non_kubectl_oneliner | `top`"
+    },
+    {
+      "name": "cell_14",
+      "type": "MARKDOWN",
+      "enabled": true,
+      "content": "## Check the disk usage and available space"
+    },
+    {
+      "name": "cell_15",
+      "type": "OP_LANG",
+      "enabled": true,
+      "content": "rq_non_kubectl_oneliner | `df -h`"
+    },
+    {
+      "name": "cell_16",
+      "type": "MARKDOWN",
+      "enabled": true,
+      "content": "## Check the PostgreSQL database for any inconsistencies"
+    },
+    {
+      "name": "cell_17",
+      "type": "OP_LANG",
+      "enabled": true,
+      "content": "rq_non_kubectl_oneliner | `psql -U ${DATABASE_USERNAME} -h ${DATABASE_HOST} -c \"CHECK TABLE ${TABLE_NAME}\"`"
+    },
+    {
+      "name": "cell_18",
+      "type": "MARKDOWN",
+      "enabled": true,
+      "content": "## Check the PostgreSQL database for any corrupted data"
+    },
+    {
+      "name": "cell_19",
+      "type": "OP_LANG",
+      "enabled": true,
+      "content": "rq_non_kubectl_oneliner | `psql -U ${DATABASE_USERNAME} -h ${DATABASE_HOST} -c \"SELECT * FROM pg_database WHERE datname = '${DATABASE_NAME}'\"`"
+    },
+    {
+      "name": "cell_20",
+      "type": "MARKDOWN",
+      "enabled": true,
+      "content": "## Check the PostgreSQL database for any deadlocks"
+    },
+    {
+      "name": "cell_21",
+      "type": "OP_LANG",
+      "enabled": true,
+      "content": "rq_non_kubectl_oneliner | `psql -U ${DATABASE_USERNAME} -h ${DATABASE_HOST} -c \"SELECT * FROM pg_locks WHERE NOT granted;\"`"
+    },
+    {
+      "name": "cell_22",
+      "type": "MARKDOWN",
+      "enabled": true,
+      "content": "## Check the PostgreSQL database for the current transaction status"
+    },
+    {
+      "name": "cell_23",
+      "type": "OP_LANG",
+      "enabled": true,
+      "content": "rq_non_kubectl_oneliner | `psql -U ${DATABASE_USERNAME} -h ${DATABASE_HOST} -c \"SELECT * FROM pg_stat_database WHERE datname = '${DATABASE_NAME}'\"`"
+    },
+    {
+      "name": "cell_24",
+      "type": "MARKDOWN",
+      "enabled": true,
+      "content": "## Measure the rollback rate"
+    },
+    {
+      "name": "cell_25",
+      "type": "OP_LANG",
+      "enabled": true,
+      "content": "host | host_name=$HOST_NAME | invoke_calculate_rollback_rate()"
+    },
+    {
+      "name": "cell_26",
+      "type": "MARKDOWN",
+      "enabled": true,
+      "content": "## Optimize the database configuration to reduce the frequency of rollbacks. Adjusting the database settings can help to optimize the rollback rate."
+    },
+    {
+      "name": "cell_27",
+      "type": "OP_LANG",
+      "enabled": true,
+      "content": "host | host_name=$HOST_NAME | invoke_optimize_database_config($DATABASE_PORT, $DATABASE_NAME, $DATABASE_PASSWORD, $DATABASE_HOST)"
+    }
+  ]
+}
